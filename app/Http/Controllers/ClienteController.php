@@ -27,6 +27,7 @@ class ClienteController extends Controller
             'nome' => 'required|string|max:255',
             'email' => 'required|email|unique:clientes,email',
             'telefone' => 'nullable|string|max:20',
+            'cpf' => 'nullable|string'
         ]);
 
 
@@ -48,24 +49,41 @@ class ClienteController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //fodase .com
+        $cliente = Cliente::findOrFail($id);
+
+        return view('clientes.edit', compact('cliente'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $cliente = Cliente::findOrfail($id);
+
+        $data = $request->validate([
+            'nome' => 'required|string|max:255',
+            'email' => 'required|email|unique:clientes,email,' . $cliente->id,
+            'telefone' => 'nullable|string|max:20',
+            'cpf' => 'nullable|string'
+        ]);
+
+       
+        $cliente->update($data);
+
+        return redirect()->route('clientes.index')->with('success', 'Cliente editado com sucesso!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $cliente = Cliente::findOrFail($id);
+        $cliente->delete();
+
+        return redirect()->route('clientes.index')->with('success', 'Cliente excluído com sucesso!');
     }
 }
